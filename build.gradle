@@ -1,0 +1,23 @@
+plugins {
+    id 'java'
+}
+
+group 'com.github.rsrulloda'
+version '1.0-SNAPSHOT'
+
+sourceCompatibility = 1.8
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.1'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.1'
+    runtimeOnly 'org.apache.logging.log4j:log4j-core:2.19.0'
+    implementation 'org.javacord:javacord:3.7.0'
+}
+
+test {
+    useJUnitPlatform()
+}

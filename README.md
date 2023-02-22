@@ -3,6 +3,7 @@
 ### Implement:
 * jhelp
 * jwotd
+* jdefine/jd
 * google api?
 
 ### Known Bugs:

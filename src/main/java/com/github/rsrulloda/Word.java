@@ -1,50 +1,53 @@
 package com.github.rsrulloda;
 
 public class Word {
-    private String word; // In English
-    private String kanji;
-    private String hiragana;
-    private String description;
+    // Private variables
+    private int ID;
+    private String japanese;
+    private String furigana;
+    private String english;
     private String pos; // Part of Speech
 
-    public Word(String word, String kanji, String hiragana, String description, String pos) {
-        this.word = word;
-        this.kanji = kanji;
-        this.hiragana = hiragana;
-        this.description = description;
+    // Constructor
+    public Word(int ID, String japanese, String furigana, String english, String pos) {
+        this.ID = ID;
+        this.japanese = japanese;
+        this.furigana = furigana;
+        this.english = english;
         this.pos = pos;
     }
 
-    public String getWord() {
-        return word;
+    // Getters & Setters
+    public int getID() {
+        return ID;
     }
 
-    public void setWord(String word) {
-        this.word = word;
+    public void setID(int ID) {
+        this.ID = ID;
     }
 
-    public String getKanji() {
-        return kanji;
+    public String getJapanese() {
+        return japanese;
     }
 
-    public void setKanji(String kanji) {
-        this.kanji = kanji;
+    public void setJapanese(String japanese) {
+        this.japanese = japanese;
     }
 
-    public String getHiragana() {
-        return hiragana;
+    public String getFurigana() {
+        return furigana;
     }
 
-    public void setHiragana(String hiragana) {
-        this.hiragana = hiragana;
+    public void setFurigana(String furigana) {
+        this.furigana = furigana;
     }
 
-    public String getDescription() {
-        return description;
+    public String getEnglish() {
+        return english;
     }
 
-    public void setDescription(String description) {
-        this.description = description;
+    public void setEnglish(String english) {
+        this.english = english;
     }
 
     public String getPos() {

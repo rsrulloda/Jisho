@@ -1,86 +1,65 @@
 package com.github.rsrulloda;
 
-import java.nio.charset.StandardCharsets;
 import java.sql.*;
 
 public class SQLiteManager {
-        private static final String DATABASE_URL = "jdbc:sqlite:C:\\Users\\ronel\\Documents\\Jisho\\src\\dictionary\\dictionary.db";
-        private Connection connection;
+    private static final String DATABASE_URL = "jdbc:sqlite:C:\\Users\\ronel\\Documents\\Jisho\\src\\main\\resources\\dictionary.db";
+    private Connection connection;
 
-        public SQLiteManager() {
-            try {
-                connection = DriverManager.getConnection(DATABASE_URL);
-                System.out.println("Connected to SQLite database.");
-            } catch (SQLException e) {
-                System.err.println("Error connecting to SQLite database: " + e.getMessage());
-            }
-        }
-
-    public void insertData(String column1Value, String column2Value, String column3Value, String column4Value, String column5Value) {
+    public SQLiteManager() { // Constructor that opens connection to SQL database
         try {
-            String query = "INSERT INTO Dictionary (Japanese, Furigana, English, Class, Definition) VALUES (?, ?, ?, ?, ?)";
-            PreparedStatement statement = connection.prepareStatement(query);
-            statement.setString(1, column1Value);
-            statement.setString(2, column2Value);
-            statement.setString(3, column3Value);
-            statement.setString(4, column4Value);
-            statement.setString(5, column4Value);
-            statement.executeUpdate();
-            System.out.println("Data inserted successfully.");
+            connection = DriverManager.getConnection(DATABASE_URL);
+            System.out.println("Connected to SQLite database.");
         } catch (SQLException e) {
-            System.err.println("Error inserting data: " + e.getMessage());
+            System.err.println("Error connecting to SQLite database: " + e.getMessage());
         }
     }
 
-    // Method to read data from the database based on a custom query
-    public void readQuery(String query) {
+    public Word getWotd() { // Gets current word of the day
+        RandomIDGenerator randomIDGenerator = new RandomIDGenerator(getDatabaseSize());
+        String query = "SELECT * FROM dictionary WHERE id = " + randomIDGenerator.getRandomID();
+        System.out.println(randomIDGenerator.getRandomID());
+
         try {
             Statement statement = connection.createStatement();
             ResultSet resultSet = statement.executeQuery(query);
 
-            ResultSetMetaData metaData = resultSet.getMetaData();
-            int columns = metaData.getColumnCount();
+            if (resultSet.next()) {
+                int id = resultSet.getInt("id");
+                String japanese = resultSet.getString("japanese");
+                String furigana = resultSet.getString("furigana");
+                String english = resultSet.getString("english");
+                String wordClass = resultSet.getString("class");
 
-            while (resultSet.next()) {
-                for (int i = 1; i <= columns; i++) {
-                    String columnName = metaData.getColumnName(i);
-                    String columnValue = resultSet.getString(i);
-                    System.out.print(columnName + ": " + columnValue + ", ");
-                }
-                System.out.println();
+                return new Word(id, japanese, furigana, english, wordClass);
+            } else {
+                System.err.println("No rows found in the database.");
             }
 
             resultSet.close();
         } catch (SQLException e) {
             System.err.println("Error executing query: " + e.getMessage());
         }
+
+        return null; // Return null if there was an error or no rows found
     }
 
-    public String readQuery2(String query) {
-        String s;
+    public int getDatabaseSize() {
         try {
             Statement statement = connection.createStatement();
-            ResultSet resultSet = statement.executeQuery(query);
+            ResultSet resultSet = statement.executeQuery("SELECT COUNT(*) FROM dictionary");
 
-            ResultSetMetaData metaData = resultSet.getMetaData();
-            int columns = metaData.getColumnCount();
-
-            while (resultSet.next()) {
-                for (int i = 1; i <= columns; i++) {
-                    String columnName = metaData.getColumnName(i);
-                    String columnValue = resultSet.getString(i);
-                    return columnName + ": " + columnValue + ", ";
-                }
+            if (resultSet.next()) {
+                return resultSet.getInt(1);
             }
-
-            resultSet.close();
         } catch (SQLException e) {
-            System.err.println("Error executing query: " + e.getMessage());
+            System.err.println("Error getting row count: " + e.getMessage());
         }
-        return "s";
+
+        return 0;
     }
 
-    public void closeConnection() {
+    public void closeConnection() { // Closes connection to SQL database
         try {
             if (connection != null) {
                 connection.close();

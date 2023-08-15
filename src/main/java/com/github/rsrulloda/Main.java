@@ -5,30 +5,21 @@ import org.javacord.api.DiscordApiBuilder;
 import org.javacord.api.entity.intent.Intent;
 import org.javacord.api.entity.message.MessageBuilder;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
-import org.javacord.api.entity.server.Server;
-import org.w3c.dom.Document;
-import org.w3c.dom.NodeList;
 
 
 import java.awt.*;
-import java.io.*;
-import java.nio.charset.StandardCharsets;
 import java.util.Scanner;
-import org.w3c.dom.Document;
-import org.w3c.dom.NodeList;
-import org.w3c.dom.Node;
-import org.w3c.dom.Element;
 
 public class Main {
     public static void main(String[] args) {
         // Bot login to Discord
         DiscordApi api = new DiscordApiBuilder()
-            .setToken("token")
+            .setToken("MTA3NjQwNzUzMTU0NDUzMTA1Ng.G5tBEl.27q8Np_p1kpd9y1FQYnjdFB3aBE0TPrAP7mYkg")
             .addIntents(Intent.MESSAGE_CONTENT)
             .login().join();
 
         // Loads database
-        SQLiteManager database = new SQLiteManager();
+        DictionaryManager dictionary = new DictionaryManager();
 
         try { // Discord listener checks for messages
             api.addMessageCreateListener(event -> {
@@ -61,6 +52,14 @@ public class Main {
                                             .setColor(Color.GRAY))
                                             .send(event.getChannel());
                                         break;
+                                    case "about": // Help about
+                                        new MessageBuilder()
+                                                .setEmbed(new EmbedBuilder()
+                                                        .setTitle("Command Info: `jabout`")
+                                                        .setDescription("Usage: `jabout`\n\n Displays information about Jisho bot.")
+                                                        .setColor(Color.GRAY))
+                                                .send(event.getChannel());
+                                        break;
                                     case "wotd": // Help word of the day
                                         new MessageBuilder()
                                             .setEmbed(new EmbedBuilder()
@@ -69,19 +68,21 @@ public class Main {
                                             .setColor(Color.GRAY))
                                             .send(event.getChannel());
                                         break;
-                                    case "about": // Help about
+                                    case "quiz":
                                         new MessageBuilder()
-                                            .setEmbed(new EmbedBuilder()
-                                            .setTitle("Command Info: `jabout`")
-                                            .setDescription("Usage: `jabout`\n\n Displays information about Jisho bot.")
-                                            .setColor(Color.GRAY))
-                                            .send(event.getChannel());
+                                                .setEmbed(new EmbedBuilder()
+                                                        .setTitle("Command Info: `jquiz`")
+                                                        .setDescription("Usage: `jquiz`\n\n Take a quiz to test your knowledge! Keeps track of your scores.")
+                                                        .setColor(Color.GRAY))
+                                                .send(event.getChannel());
                                         break;
                                     default:
                                         System.out.println("Unknown subcommand. Type 'jhelp' for help.");
                                 }
                             }
                             break;
+
+
                         case "jabout": // About Jisho
                             new MessageBuilder()
                                 .setEmbed(new EmbedBuilder()
@@ -94,7 +95,7 @@ public class Main {
                                 .send(event.getChannel());
                             break;
                         case "jwotd": // Sends current word of the day
-                            Word wotd = database.getWotd();
+                            Word wotd = dictionary.getWotd();
 
                             new MessageBuilder()
                                 .setEmbed(new EmbedBuilder()
@@ -105,6 +106,30 @@ public class Main {
                                                 "\n Part of Speech: " + wotd.getPos())
                                 .setColor(Color.GRAY))
                                 .send(event.getChannel());
+
+
+                            System.out.println("Message Sent");
+                            break;
+                        case "jquiz":
+                            Word word = dictionary.getRandomWord();
+
+                            EmbedBuilder embed = new EmbedBuilder()
+                                    .setTitle("Quiz")
+                                    .setDescription("Word: " + word.getJapanese() +
+                                            "\n Furigana: " + word.getFurigana() +
+                                            "\n English: " + word.getEnglish() +
+                                            "\n Part of Speech: " + word.getPos())
+                                    .setColor(Color.GRAY);
+
+                            new MessageBuilder()
+                                    .setEmbed(embed)
+                                    .send(event.getChannel())
+                                    .thenAcceptAsync(message -> {
+                                        message.addReaction("\uD83C\uDDE6"); // A
+                                        message.addReaction("\uD83C\uDDE7"); // B
+                                        message.addReaction("\uD83C\uDDE8"); // C
+                                        message.addReaction("\uD83C\uDDE9"); // D
+                                    });
 
 
                             System.out.println("Message Sent");
@@ -123,7 +148,7 @@ public class Main {
             Scanner scanner = new Scanner(System.in);
             if(scanner.next().equals("dc")) {
                 api.disconnect();
-                database.closeConnection();
+                dictionary.closeConnection();
             }
 
         } catch (Exception e) {
